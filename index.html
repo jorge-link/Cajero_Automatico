@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cajero Automático</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="atm-container">
+        <div class="atm-header">
+            <h1>Banco Virtual</h1>
+        </div>
+        <div class="atm-screen">
+            <div class="screen-content">
+                <h2>Bienvenido al Cajero Automático</h2>
+                <p>Por favor, inserte su tarjeta e ingrese su PIN</p>
+                <div class="card-slot">
+                    <div class="card-animation" id="card">
+                        <div class="card-inner"></div>
+                    </div>
+                </div>
+                <button id="insert-card" class="btn-primary">Insertar Tarjeta</button>
+                
+                <div id="pin-container" class="hidden">
+                    <h3>Ingrese su PIN</h3>
+                    <form id="pin-form" action="login.php" method="POST">
+                        <input type="password" id="pin" name="pin" maxlength="4" pattern="[0-9]{4}" required>
+                        <button type="submit" class="btn-primary">Ingresar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="atm-keypad">
+            <div class="keypad-row">
+                <button class="keypad-btn" data-key="1">1</button>
+                <button class="keypad-btn" data-key="2">2</button>
+                <button class="keypad-btn" data-key="3">3</button>
+            </div>
+            <div class="keypad-row">
+                <button class="keypad-btn" data-key="4">4</button>
+                <button class="keypad-btn" data-key="5">5</button>
+                <button class="keypad-btn" data-key="6">6</button>
+            </div>
+            <div class="keypad-row">
+                <button class="keypad-btn" data-key="7">7</button>
+                <button class="keypad-btn" data-key="8">8</button>
+                <button class="keypad-btn" data-key="9">9</button>
+            </div>
+            <div class="keypad-row">
+                <button class="keypad-btn" data-key="clear">C</button>
+                <button class="keypad-btn" data-key="0">0</button>
+                <button class="keypad-btn" data-key="enter">E</button>
+            </div>
+        </div>
+        <div class="atm-footer">
+            <a href="mantenimiento.php" class="admin-link">Modo Mantenimiento</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const insertCardBtn = document.getElementById('insert-card');
+            const pinContainer = document.getElementById('pin-container');
+            const card = document.getElementById('card');
+            const pinInput = document.getElementById('pin');
+            const pinForm = document.getElementById('pin-form');
+            const keypadButtons = document.querySelectorAll('.keypad-btn');
+
+            // Manejar inserción de tarjeta
+            insertCardBtn.addEventListener('click', function() {
+                card.classList.add('inserted');
+                setTimeout(() => {
+                    insertCardBtn.classList.add('hidden');
+                    pinContainer.classList.remove('hidden');
+                    pinInput.focus();
+                }, 1000);
+            });
+
+            // Manejar clicks en el teclado numérico
+            keypadButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const key = this.getAttribute('data-key');
+                    
+                    if (key === 'clear') {
+                        pinInput.value = '';
+                    } else if (key === 'enter') {
+                        if (pinInput.value.length === 4) {
+                            pinForm.submit();
+                        }
+                    } else if (pinInput.value.length < 4) {
+                        pinInput.value += key;
+                    }
+                });
+            });
+
+            // Manejar envío del formulario de PIN
+            pinForm.addEventListener('submit', function(e) {
+                if (pinInput.value.length !== 4) {
+                    e.preventDefault();
+                    alert('El PIN debe tener 4 dígitos');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

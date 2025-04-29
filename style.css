@@ -1,0 +1,472 @@
+/* Estilos generales */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Contenedor principal del cajero */
+.atm-container {
+    width: 100%;
+    max-width: 800px;
+    background-color: #334;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+/* Encabezado del cajero */
+.atm-header {
+    background-color: #2c3e50;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    border-bottom: 5px solid #1abc9c;
+}
+
+.atm-header h1 {
+    font-size: 24px;
+    margin: 0;
+}
+
+/* Pantalla del cajero */
+.atm-screen {
+    background-color: #ecf0f1;
+    padding: 20px;
+    min-height: 300px;
+    border: 8px solid #7f8c8d;
+}
+
+.admin-mode .atm-screen {
+    background-color: #2c3e50;
+    color: white;
+}
+
+.screen-content {
+    padding: 15px;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+    min-height: 250px;
+}
+
+.admin-mode .screen-content {
+    background-color: #34495e;
+}
+
+/* Contenedores de formularios */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+.admin-mode .form-group label {
+    color: #ecf0f1;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+/* Botones y acciones */
+.form-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.btn-primary, .btn-secondary {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.3s;
+}
+
+.btn-primary {
+    background-color: #2980b9;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #3498db;
+}
+
+.btn-secondary {
+    background-color: #7f8c8d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #95a5a6;
+}
+
+/* Teclado numérico */
+.atm-keypad {
+    background-color: #2c3e50;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.keypad-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.keypad-btn {
+    width: 60px;
+    height: 60px;
+    background-color: #34495e;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 24px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.keypad-btn:hover {
+    background-color: #3498db;
+}
+
+.keypad-btn:active {
+    background-color: #2980b9;
+    transform: scale(0.95);
+}
+
+/* Animación de tarjeta */
+.card-slot {
+    background-color: #34495e;
+    border-radius: 5px;
+    height: 60px;
+    margin: 20px auto;
+    position: relative;
+    width: 250px;
+    overflow: hidden;
+}
+
+.card-animation {
+    background-color: #3498db;
+    height: 40px;
+    width: 220px;
+    position: absolute;
+    top: 10px;
+    left: -240px;
+    border-radius: 5px;
+    transition: transform 1s ease-in-out;
+}
+
+.card-animation.inserted {
+    transform: translateX(255px);
+}
+
+.card-inner {
+    background: linear-gradient(135deg, #f1c40f, #e67e22, #e74c3c);
+    height: 30px;
+    width: 200px;
+    position: absolute;
+    top: 5px;
+    left: 10px;
+    border-radius: 3px;
+}
+
+/* Clases de utilidad */
+.hidden {
+    display: none;
+}
+
+.alert {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Saldo y balance */
+.balance-display {
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.admin-mode .balance-display {
+    background-color: #2c3e50;
+    border-color: #34495e;
+}
+
+.balance {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2980b9;
+}
+
+.admin-mode .balance {
+    color: #3498db;
+}
+
+/* Menú de opciones */
+.menu-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.menu-btn {
+    background-color: #3498db;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.menu-btn:hover {
+    background-color: #2980b9;
+}
+
+.menu-btn.logout {
+    background-color: #e74c3c;
+    grid-column: span 2;
+}
+
+.menu-btn.logout:hover {
+    background-color: #c0392b;
+}
+
+/* Cantidades rápidas */
+.quick-amounts {
+    margin-top: 20px;
+}
+
+.amount-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.amount-btn {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.amount-btn:hover {
+    background-color: #2980b9;
+}
+
+/* Animaciones de transacciones */
+.transaction-animation {
+    height: 50px;
+    position: relative;
+    margin: 15px 0;
+}
+
+.money-bills {
+    width: 50px;
+    height: 30px;
+    background-color: #27ae60;
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: all 1s ease-in-out;
+}
+
+.money-bills.dispensing {
+    opacity: 1;
+    transform: translateX(-50%) translateY(20px);
+}
+
+.money-deposit {
+    width: 40px;
+    height: 25px;
+    background-color: #27ae60;
+    position: absolute;
+    left: 50%;
+    top: 20px;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: all 1s ease-in-out;
+}
+
+.money-deposit.depositing {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-20px);
+}
+
+/* Historial de transacciones */
+.transaction-history {
+    margin-top: 20px;
+}
+
+.transaction-history table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.transaction-history th,
+.transaction-history td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.transaction-history th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+.transaction-history tr.retiro {
+    background-color: #fff8f8;
+}
+
+.transaction-history tr.ingreso {
+    background-color: #f8fff8;
+}
+
+.no-records {
+    text-align: center;
+    color: #7f8c8d;
+    padding: 20px;
+}
+
+/* Footer */
+.atm-footer {
+    background-color: #2c3e50;
+    color: #95a5a6;
+    padding: 10px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.atm-footer a {
+    color: #bdc3c7;
+    text-decoration: none;
+}
+
+.atm-footer a:hover {
+    color: #ecf0f1;
+}
+
+/* Panel de administración */
+.admin-panel {
+    background-color: #34495e;
+    color: #ecf0f1;
+}
+
+.admin-panel h2,
+.admin-panel h3 {
+    color: #3498db;
+    margin-bottom: 15px;
+}
+
+.admin-section {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #2c3e50;
+}
+
+.admin-panel table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.admin-panel th,
+.admin-panel td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #2c3e50;
+}
+
+.admin-panel th {
+    background-color: #2c3e50;
+    color: #ecf0f1;
+}
+
+.admin-panel tr:nth-child(even) {
+    background-color: #2c3e50;
+}
+
+/* Adaptación para dispositivos móviles */
+@media (max-width: 768px) {
+    .menu-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .menu-btn.logout {
+        grid-column: auto;
+    }
+    
+    .keypad-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .form-actions a,
+    .form-actions button {
+        width: 100%;
+        text-align: center;
+    }
+    
+    .amount-buttons {
+        grid-template-columns: 1fr;
+    }
+}
