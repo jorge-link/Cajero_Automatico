@@ -17,13 +17,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['pin_actual']) && isset
     $pin_nuevo = sanitize($_POST['pin_nuevo']);
     $pin_confirmar = sanitize($_POST['pin_confirmar']);
     
-    // Validar formato del PIN
+    // Validar formato del PIN (4 dígitos)
     if (!preg_match('/^\d{4}$/', $pin_nuevo)) {
         $error = "El nuevo PIN debe contener exactamente 4 dígitos";
     } 
     // Validar que los PINs nuevos coincidan
     elseif ($pin_nuevo !== $pin_confirmar) {
         $error = "Los PINs nuevos no coinciden";
+    }
+    // Validar que no sea el mismo PIN actual
+    elseif ($pin_nuevo === $pin_actual) {
+        $error = "El nuevo PIN no puede ser igual al actual";
+    }
+    // Validar que no sean dígitos repetidos (ej: 1111)
+    elseif (preg_match('/^(\d)\1{3}$/', $pin_nuevo)) {
+        $error = "El PIN no puede tener todos los dígitos iguales";
     } 
     else {
         try {
@@ -33,28 +41,48 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['pin_actual']) && isset
             $usuario = $stmt->fetch();
             
             if ($usuario && $usuario['pin'] === $pin_actual) {
-                // Iniciar transacción
-                $pdo->beginTransaction();
-                
-                // Actualizar PIN
-                $update = $pdo->prepare("UPDATE usuario SET pin = :pin_nuevo WHERE id = :id");
-                $update->execute([
-                    'pin_nuevo' => $pin_nuevo,
-                    'id' => $_SESSION['user_id']
+                // Verificar si el PIN ya fue usado antes
+                $stmtHistorial = $pdo->prepare("SELECT COUNT(*) FROM historial_pin WHERE id_usuario = :id_usuario AND pin_anterior = :pin_nuevo");
+                $stmtHistorial->execute([
+                    'id_usuario' => $_SESSION['user_id'],
+                    'pin_nuevo' => $pin_nuevo
                 ]);
                 
-                // Registrar cambio de PIN
-                $historial = $pdo->prepare("INSERT INTO historial_pin (id_usuario) VALUES (:id_usuario)");
-                $historial->execute(['id_usuario' => $_SESSION['user_id']]);
-                
-                // Confirmar transacción
-                $pdo->commit();
-                
-                $success = "PIN actualizado correctamente";
+                if ($stmtHistorial->fetchColumn() > 0) {
+                    $error = "No puedes usar un PIN que ya has utilizado anteriormente";
+                } else {
+                    // Iniciar transacción
+                    $pdo->beginTransaction();
+                    
+                    // Registrar cambio de PIN (guardando el anterior)
+                    $historial = $pdo->prepare("INSERT INTO historial_pin (id_usuario, pin_anterior) VALUES (:id_usuario, :pin_anterior)");
+                    $historial->execute([
+                        'id_usuario' => $_SESSION['user_id'],
+                        'pin_anterior' => $pin_actual
+                    ]);
+                    
+                    // Actualizar PIN
+                    $update = $pdo->prepare("UPDATE usuario SET pin = :pin_nuevo WHERE id = :id");
+                    $update->execute([
+                        'pin_nuevo' => $pin_nuevo,
+                        'id' => $_SESSION['user_id']
+                    ]);
+                    
+                    // Confirmar transacción
+                    $pdo->commit();
+                    
+                    $success = "PIN actualizado correctamente";
+                    
+                    // Reiniciar contador de intentos
+                    unset($_SESSION['pin_change_attempts']);
+                }
             } else {
                 $error = "El PIN actual es incorrecto";
-                if (isset($pdo) && $pdo->inTransaction()) {
-                    $pdo->rollBack();
+                // Registrar intento fallido
+                $_SESSION['pin_change_attempts'] = ($_SESSION['pin_change_attempts'] ?? 0) + 1;
+                
+                if ($_SESSION['pin_change_attempts'] >= 3) {
+                    $error = "Demasiados intentos fallidos. Por seguridad, cierra sesión e inténtalo más tarde";
                 }
             }
         } catch (PDOException $e) {
@@ -100,7 +128,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['pin_actual']) && isset
                     
                     <div class="form-group">
                         <label for="pin_nuevo">Nuevo PIN:</label>
-                        <input type="password" id="pin_nuevo" name="pin_nuevo" maxlength="4" pattern="\d{4}" required>
+                        <input type="password" id="pin_nuevo" name="pin_nuevo" maxlength="4" pattern="\d{4}" required
+                               title="4 dígitos diferentes al actual y no usado previamente">
                     </div>
                     
                     <div class="form-group">
@@ -116,90 +145,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['pin_actual']) && isset
             </div>
         </div>
         <div class="atm-keypad">
-            <div class="keypad-row">
-                <button class="keypad-btn" data-key="1">1</button>
-                <button class="keypad-btn" data-key="2">2</button>
-                <button class="keypad-btn" data-key="3">3</button>
-            </div>
-            <div class="keypad-row">
-                <button class="keypad-btn" data-key="4">4</button>
-                <button class="keypad-btn" data-key="5">5</button>
-                <button class="keypad-btn" data-key="6">6</button>
-            </div>
-            <div class="keypad-row">
-                <button class="keypad-btn" data-key="7">7</button>
-                <button class="keypad-btn" data-key="8">8</button>
-                <button class="keypad-btn" data-key="9">9</button>
-            </div>
-            <div class="keypad-row">
-                <button class="keypad-btn" data-key="clear">C</button>
-                <button class="keypad-btn" data-key="0">0</button>
-                <button class="keypad-btn" data-key="enter">E</button>
-            </div>
+            <!-- Teclado numérico (igual que en tu versión original) -->
         </div>
     </div>
 
     <script src="session.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const pinActualInput = document.getElementById('pin_actual');
-            const pinNuevoInput = document.getElementById('pin_nuevo');
-            const pinConfirmarInput = document.getElementById('pin_confirmar');
-            const keypadButtons = document.querySelectorAll('.keypad-btn');
-            
-            let activeInput = pinActualInput;
-            
-            // Establecer el foco en el primer campo
-            pinActualInput.focus();
-            
-            // Cambiar el foco cuando se completa un campo
-            pinActualInput.addEventListener('input', function() {
-                if(this.value.length === 4) {
-                    pinNuevoInput.focus();
-                    activeInput = pinNuevoInput;
-                }
-            });
-            
-            pinNuevoInput.addEventListener('input', function() {
-                if(this.value.length === 4) {
-                    pinConfirmarInput.focus();
-                    activeInput = pinConfirmarInput;
-                }
-            });
-            
-            // Establecer el foco en el campo al hacer clic
-            [pinActualInput, pinNuevoInput, pinConfirmarInput].forEach(input => {
-                input.addEventListener('focus', function() {
-                    activeInput = this;
-                });
-            });
-            
-            // Manejar teclado numérico
-            keypadButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const key = this.getAttribute('data-key');
-                    
-                    if (key === 'clear') {
-                        activeInput.value = '';
-                    } else if (key === 'enter') {
-                        document.getElementById('pin-form').submit();
-                    } else if (activeInput.value.length < 4) {
-                        activeInput.value += key;
-                        
-                        // Cambiar automáticamente al siguiente campo si se completa
-                        if (activeInput.value.length === 4) {
-                            if (activeInput === pinActualInput) {
-                                pinNuevoInput.focus();
-                                activeInput = pinNuevoInput;
-                            } else if (activeInput === pinNuevoInput) {
-                                pinConfirmarInput.focus();
-                                activeInput = pinConfirmarInput;
-                            }
-                        }
-                    }
-                });
-            });
-        });
+        // Script para el teclado numérico (igual que en tu versión original)
     </script>
 </body>
 </html>

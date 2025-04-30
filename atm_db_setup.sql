@@ -38,3 +38,6 @@ INSERT INTO usuario (pin, saldo) VALUES ('5678', 2500.00);
 
 -- Usuario administrador (PIN 9999)
 INSERT INTO usuario (pin, saldo) VALUES ('9999', 0.00);
+
+
+ALTER TABLE historial_pin ADD COLUMN pin_anterior VARCHAR(4) NOT NULL;
