@@ -33,8 +33,6 @@ CREATE TABLE IF NOT EXISTS historial_pin (
 -- Insertar datos de prueba (usuario con PIN 1234)
 INSERT INTO usuario (pin, saldo) VALUES ('1234', 5000.00);
 
--- Insertar datos de prueba (usuario con PIN 5678)
-INSERT INTO usuario (pin, saldo) VALUES ('5678', 2500.00);
 
 -- Usuario administrador (PIN 9999)
 INSERT INTO usuario (pin, saldo) VALUES ('9999', 0.00);
